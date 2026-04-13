@@ -12,16 +12,13 @@ import kotlinx.coroutines.coroutineScope
 suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): MutableList<ByteArray> {
     val bodyByteSize = head(url).headers["Content-Length"]?.toInt()
         ?: TODO("Throw something meaningful")
-
     val chunkSize = bodyByteSize / numOfParallelRequests + if (bodyByteSize % numOfParallelRequests > 0) 1 else 0
     val realNumOfParallelRequests = when (chunkSize) {
         0 -> 1
         1 -> bodyByteSize
         else -> numOfParallelRequests
     }
-
-    val chunksStorage: MutableList<ByteArray?> = MutableList(realNumOfParallelRequests) { null }
-
+    val chunksStorage = RAMChunksStorage(realNumOfParallelRequests)
     coroutineScope {
         (0 ..< realNumOfParallelRequests).map { requestNumber ->
             val startOffsetInclusive = requestNumber * chunkSize
@@ -33,12 +30,9 @@ suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): Mutabl
                 val response = get(url) {
                     header("Range", "bytes=$startOffsetInclusive-${endOffsetExclusive - 1}")
                 }
-                chunksStorage[requestNumber] = response.bodyAsBytes()
+                chunksStorage.saveChunk(requestNumber, response.bodyAsBytes())
             }
         }.awaitAll()
     }
-
-    if (chunksStorage.contains(null)) TODO("Throw something meaningful")
-    @Suppress("UNCHECKED_CAST")
-    return chunksStorage as MutableList<ByteArray>
+    return chunksStorage.mergeChunks()
 }
