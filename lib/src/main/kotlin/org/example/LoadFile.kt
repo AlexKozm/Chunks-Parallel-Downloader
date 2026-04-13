@@ -10,11 +10,15 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): MutableList<ByteArray> {
-    val byteSize = head(url).headers["Content-Length"]?.toInt()
+    val bodyByteSize = head(url).headers["Content-Length"]?.toInt()
         ?: TODO("Throw something meaningful")
 
-    val chunkSize = byteSize / numOfParallelRequests
-    val realNumOfParallelRequests = if (chunkSize == 0) 1 else numOfParallelRequests
+    val chunkSize = bodyByteSize / numOfParallelRequests + if (bodyByteSize % numOfParallelRequests > 0) 1 else 0
+    val realNumOfParallelRequests = when (chunkSize) {
+        0 -> 1
+        1 -> bodyByteSize
+        else -> numOfParallelRequests
+    }
 
     val chunksStorage: MutableList<ByteArray?> = MutableList(realNumOfParallelRequests) { null }
 
@@ -23,7 +27,7 @@ suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): Mutabl
             val startOffsetInclusive = requestNumber * chunkSize
             val endOffsetExclusive =
                 if (requestNumber < realNumOfParallelRequests - 1) (requestNumber + 1) * chunkSize
-                else byteSize
+                else bodyByteSize
 
             async {
                 val response = get(url) {
