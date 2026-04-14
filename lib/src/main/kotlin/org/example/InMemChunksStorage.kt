@@ -1,6 +1,6 @@
 package org.example
 
-internal class RAMChunksStorage(
+internal class InMemChunksStorage(
     numOfParallelRequests: Int
 ) : ChunksStorage<MutableList<ByteArray>, Int> {
     private val chunksStorage: MutableList<ByteArray?> = MutableList(numOfParallelRequests) { null }

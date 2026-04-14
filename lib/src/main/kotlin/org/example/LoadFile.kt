@@ -14,7 +14,7 @@ suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): Mutabl
                 1 -> bodySize
                 else -> numOfParallelRequests
             }
-            RAMChunksStorage(realNumOfParallelRequests)
+            InMemChunksStorage(realNumOfParallelRequests)
         },
         numOfParallelRequests = numOfParallelRequests
     )
