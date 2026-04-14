@@ -1,20 +1,16 @@
 package org.example
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.head
-import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsBytes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): MutableList<ByteArray> {
-    val bodyByteSize = head(url).headers["Content-Length"]?.toInt()
-        ?: TODO("Throw something meaningful")
+    val fileRequester = HttpFileRequester(this, url)
+    val bodyByteSize = fileRequester.getBodySize()
     val chunkSize = bodyByteSize / numOfParallelRequests + if (bodyByteSize % numOfParallelRequests > 0) 1 else 0
     val realNumOfParallelRequests = when (chunkSize) {
-        0 -> 1
+        0 -> 1 // TODO: chunkSize == 0 only if bodyByteSize == 0
         1 -> bodyByteSize
         else -> numOfParallelRequests
     }
@@ -27,10 +23,8 @@ suspend fun HttpClient.loadFile(url: String, numOfParallelRequests: Int): Mutabl
                 else bodyByteSize
 
             async {
-                val response = get(url) {
-                    header("Range", "bytes=$startOffsetInclusive-${endOffsetExclusive - 1}")
-                }
-                chunksStorage.saveChunk(requestNumber, response.bodyAsBytes())
+                val chunk = fileRequester.getChunk(startOffsetInclusive ..< endOffsetExclusive)
+                chunksStorage.saveChunk(requestNumber, chunk)
             }
         }.awaitAll()
     }
