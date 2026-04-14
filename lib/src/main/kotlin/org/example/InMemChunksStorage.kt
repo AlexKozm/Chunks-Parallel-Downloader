@@ -1,9 +1,9 @@
 package org.example
 
 internal class InMemChunksStorage(
-    numOfParallelRequests: Int
+    numOfChunks: Int
 ) : ChunksStorage<MutableList<ByteArray>, Int> {
-    private val chunksStorage: MutableList<ByteArray?> = MutableList(numOfParallelRequests) { null }
+    private val chunksStorage: MutableList<ByteArray?> = MutableList(numOfChunks) { null }
 
     override suspend fun saveChunk(id: Int, chunk: ByteArray) {
         chunksStorage[id] = chunk

@@ -14,7 +14,7 @@ internal suspend fun <Result> loadFile(
     val bodySize = fileRequester.getBodySize()
     val chunkSize = chunkSizeProvider(bodySize)
     val chunksStorage = chunksStorageProvider(bodySize, chunkSize)
-    val iterator = IntRageIterator(chunkSize, bodySize)
+    val iterator = IntRangeIterator(chunkSize, bodySize)
     val semaphore = Semaphore(numOfParallelRequests)
     coroutineScope {
         for ((index, chunkRange) in iterator.withIndex()) {
@@ -29,7 +29,7 @@ internal suspend fun <Result> loadFile(
     return chunksStorage.mergeChunks()
 }
 
-private class IntRageIterator(
+private class IntRangeIterator(
     val chunkSize: Int,
     val bodySize: Int
 ) : Iterator<IntRange> {
