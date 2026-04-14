@@ -1,10 +1,30 @@
 package org.example
 
 import kotlinx.coroutines.runBlocking
+import org.example.utils.ceilDiv
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class LoadWithChunkSizeAndNumOfParallelRequestsTest {
+    private val testData = "test0test1test2test3test4"
+    private val testDataByteArray = testData.toByteArray()
+
+    internal suspend fun loadFile(chunkSize: Int, numOfParallelRequests: Int): MutableList<ByteArray> {
+        return loadFile(
+            fileRequester = InMemFileRequester(testDataByteArray),
+            chunkSizeProvider = { bodySize ->
+                when {
+                    chunkSize * numOfParallelRequests > bodySize -> bodySize / numOfParallelRequests + 1
+                    chunkSize * numOfParallelRequests == bodySize -> bodySize / numOfParallelRequests
+                    else -> chunkSize
+                }
+            },
+            chunksStorageProvider = { bodySize, chunkSize ->
+                InMemChunksStorage(bodySize ceilDiv chunkSize)
+            },
+            numOfParallelRequests = numOfParallelRequests
+        )
+    }
 
     @Test
     fun `bodySize rem chunkSize == 0, chunkSize times numOfParallelRequests lt bodySize`() = runBlocking {
@@ -36,26 +56,4 @@ class LoadWithChunkSizeAndNumOfParallelRequestsTest {
     }
 
     // TODO: with custom FileRequester check the max num of parallel requests
-}
-
-private const val testData = "test0test1test2test3test4"
-private val testDataByteArray = testData.toByteArray()
-
-internal suspend fun loadFile(chunkSize: Int, numOfParallelRequests: Int): MutableList<ByteArray> {
-    return loadFile(
-        fileRequester = InMemFileRequester(testDataByteArray),
-        chunkSizeProvider = { bodySize ->
-            when {
-                chunkSize * numOfParallelRequests > bodySize ->
-                    bodySize / numOfParallelRequests + 1
-                chunkSize * numOfParallelRequests == bodySize ->
-                    bodySize / numOfParallelRequests
-                else -> chunkSize
-            }
-        },
-        chunksStorageProvider = { bodySize, chunkSize ->
-            InMemChunksStorage(bodySize/chunkSize + if (bodySize % chunkSize > 0) 1 else 0)
-        },
-        numOfParallelRequests = numOfParallelRequests
-    )
 }

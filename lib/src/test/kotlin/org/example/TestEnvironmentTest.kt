@@ -12,14 +12,14 @@ class TestEnvironmentTest {
     @Test
     fun `server is available and has a test file`() = runBlocking {
         val client = HttpClient(CIO)
-        val response = client.get("http://localhost:8080/test-file.txt")
+        val response = client.get("http://localhost:8080/input/test-file.txt")
         assert(response.status == HttpStatusCode.OK)
     }
 
     @Test
     fun `head returns Content-Length header`() = runBlocking {
         val client = HttpClient(CIO)
-        val response = client.head("http://localhost:8080/test-file.txt")
+        val response = client.head("http://localhost:8080/input/test-file.txt")
         assert(response.headers.contains("Content-Length"))
         println(response.headers["Content-Length"])
     }
@@ -27,10 +27,10 @@ class TestEnvironmentTest {
     @Test
     fun `range header in request works`() = runBlocking {
         val client = HttpClient(CIO)
-        val response = client.get("http://localhost:8080/test-file.txt") {
-            header("Range", "bytes=1-1")
+        val response = client.get("http://localhost:8080/input/test-file.txt") {
+            header("Range", "bytes=1-2")
         }
         assert(response.status == HttpStatusCode.PartialContent)
-        assert(response.bodyAsText() == "*")
+        assert(response.bodyAsText() == "es")
     }
 }
