@@ -1,8 +1,9 @@
-package org.example
+package org.example.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.runBlocking
+import org.example.loadFile
 import org.junit.jupiter.api.AutoClose
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

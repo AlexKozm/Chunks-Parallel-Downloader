@@ -1,6 +1,8 @@
 package org.example
 
 import io.ktor.client.HttpClient
+import org.example.requester.HttpFileRequester
+import org.example.storage.DiskChunksStorage
 import org.example.utils.ceilDiv
 import java.nio.file.Path
 

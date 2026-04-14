@@ -1,4 +1,4 @@
-package org.example
+package org.example.requester
 
 
 internal interface FileRequester<ChunkId> {

@@ -3,6 +3,8 @@ package org.example
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
+import org.example.requester.FileRequester
+import org.example.storage.ChunksStorage
 
 // TODO: Consider using Long instead of Int, or even some generic type for ChunkId
 internal suspend fun <Result> loadFile(

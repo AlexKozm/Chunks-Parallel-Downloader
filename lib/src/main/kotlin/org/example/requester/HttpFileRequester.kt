@@ -1,4 +1,4 @@
-package org.example
+package org.example.requester
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
