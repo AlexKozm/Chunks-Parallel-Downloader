@@ -17,7 +17,7 @@ internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
         val sortedChunks = chunksStorage.sortedBy { it.first.first }
         sortedChunks.fold(-1L) { prevRangeLast, (curRange, _) ->
             if (prevRangeLast + 1 != curRange.first)
-                throw UnionOfRangesIsNotContinuous(prevRangeLast + 1..curRange.first)
+                throw UnionOfRangesIsNotContinuous(prevRangeLast + 1 ..< curRange.first)
             curRange.last
         }
         return sortedChunks.map { it.second }
