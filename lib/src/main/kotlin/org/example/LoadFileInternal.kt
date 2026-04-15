@@ -9,12 +9,12 @@ import org.example.storage.ChunksStorage
 // TODO: think about using generic ChunkId
 internal suspend fun <Result> loadFile(
     fileRequester: FileRequester<LongRange>,
-    chunkSizeProvider: (bodySize: Long) -> Int,
+    chunkSizeProvider: ChunkSizeDefiner,
     chunksStorageProvider: (bodySize: Long, chunkSize: Int) -> ChunksStorage<Result, LongRange>,
     numOfParallelRequests: Int
 ): Result {
     val bodySize = fileRequester.getBodySize()
-    val chunkSize = chunkSizeProvider(bodySize)
+    val chunkSize = chunkSizeProvider.chunkSize(bodySize)
     val chunksStorage = chunksStorageProvider(bodySize, chunkSize)
     val iterator = LongRangeIterator(chunkSize, bodySize)
     val semaphore = Semaphore(numOfParallelRequests)

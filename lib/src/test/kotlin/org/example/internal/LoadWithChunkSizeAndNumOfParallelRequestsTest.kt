@@ -1,9 +1,10 @@
 package org.example.internal
 
 import kotlinx.coroutines.runBlocking
+import org.example.ChunkSizeDefiner
+import org.example.byMaxChunkSizeAndMaxParallel
 import org.example.requester.InMemFileRequester
 import org.example.storage.InMemChunksStorage
-import org.example.utils.toIntOrThrow
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -14,15 +15,7 @@ class LoadWithChunkSizeAndNumOfParallelRequestsTest {
     internal suspend fun loadFile(chunkSize: Int, numOfParallelRequests: Int): List<ByteArray> {
         return org.example.loadFile(
             fileRequester = InMemFileRequester(testDataByteArray),
-            chunkSizeProvider = { bodySize ->
-                when {
-                    chunkSize.toLong() * numOfParallelRequests > bodySize ->
-                        (bodySize / numOfParallelRequests + 1).toIntOrThrow()
-                    chunkSize.toLong() * numOfParallelRequests == bodySize ->
-                        (bodySize / numOfParallelRequests).toIntOrThrow()
-                    else -> chunkSize
-                }
-            },
+            chunkSizeProvider = ChunkSizeDefiner.byMaxChunkSizeAndMaxParallel(chunkSize, numOfParallelRequests),
             chunksStorageProvider = { _, _ -> InMemChunksStorage() },
             numOfParallelRequests = numOfParallelRequests
         )

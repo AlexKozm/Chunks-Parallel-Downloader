@@ -1,6 +1,8 @@
 package org.example.internal
 
 import kotlinx.coroutines.runBlocking
+import org.example.ChunkSizeDefiner
+import org.example.forLoadInOneIteration
 import org.example.requester.InMemFileRequester
 import org.example.storage.InMemChunksStorage
 import org.example.utils.ceilDiv
@@ -14,7 +16,7 @@ class FileChunkedByNumOfParallelRequestsTest {
     private suspend fun loadFile(numOfParallelRequests: Int): List<ByteArray> {
         return org.example.loadFile(
             fileRequester = InMemFileRequester(testDataByteArray),
-            chunkSizeProvider = { bodySize -> bodySize ceilDiv numOfParallelRequests },
+            chunkSizeProvider = ChunkSizeDefiner.forLoadInOneIteration(numOfParallelRequests),
             chunksStorageProvider = { _, _ -> InMemChunksStorage() },
             numOfParallelRequests = numOfParallelRequests
         )

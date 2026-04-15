@@ -28,8 +28,8 @@ class PublicApiTest(
         client.loadFile(
             url = "http://localhost:8080/input/test-file.txt",
             path = outputPath.pathString,
-            chunkSize = 5,
-            numOfParallelRequests = 2
+            maxChunkSize = 5,
+            maxNumOfParallelRequests = 2
         )
         val res = outputPath.readLines().joinToString("")
         val expected = "test0test1test2"
