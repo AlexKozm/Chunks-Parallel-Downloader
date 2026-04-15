@@ -8,20 +8,19 @@ internal fun interface ChunkSizeDefiner {
     fun chunkSize(bodySize: Long): Int
 }
 
-internal fun ChunkSizeDefiner.Companion.forLoadInOneIteration(numOfParallelRequests: Int) = ChunkSizeDefiner { bodySize ->
-    bodySize ceilDiv numOfParallelRequests
-}
+internal fun ChunkSizeDefiner.Companion.forLoadInOneIteration(numOfParallelRequests: Int) =
+    ChunkSizeDefiner { bodySize -> bodySize ceilDiv numOfParallelRequests }
 
 internal fun ChunkSizeDefiner.Companion.byMaxChunkSizeAndMaxParallel(
     chunkSize: Int,
     numOfParallelRequests: Int
 ) = ChunkSizeDefiner { bodySize ->
-        when {
-            chunkSize.toLong() * numOfParallelRequests > bodySize ->
-                (bodySize / numOfParallelRequests + 1).toIntOrThrow()
-            chunkSize.toLong() * numOfParallelRequests == bodySize ->
-                (bodySize / numOfParallelRequests).toIntOrThrow()
-            else -> chunkSize
-        }
+    when {
+        chunkSize.toLong() * numOfParallelRequests > bodySize ->
+            (bodySize / numOfParallelRequests + 1).toIntOrThrow()
+        chunkSize.toLong() * numOfParallelRequests == bodySize ->
+            (bodySize / numOfParallelRequests).toIntOrThrow()
+        else -> chunkSize
     }
+}
 
