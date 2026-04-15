@@ -6,24 +6,24 @@ import kotlinx.coroutines.sync.Semaphore
 import org.example.requester.FileRequester
 import org.example.storage.ChunksStorage
 
-// TODO: Consider using Long instead of Int, or even some generic type for ChunkId
+// TODO: think about using generic ChunkId
 internal suspend fun <Result> loadFile(
-    fileRequester: FileRequester<IntRange>,
-    chunkSizeProvider: (bodySize: Int) -> Int,
-    chunksStorageProvider: (bodySize: Int, chunkSize: Int) -> ChunksStorage<Result, Int>,
+    fileRequester: FileRequester<LongRange>,
+    chunkSizeProvider: (bodySize: Long) -> Int,
+    chunksStorageProvider: (bodySize: Long, chunkSize: Int) -> ChunksStorage<Result, LongRange>,
     numOfParallelRequests: Int
 ): Result {
     val bodySize = fileRequester.getBodySize()
     val chunkSize = chunkSizeProvider(bodySize)
     val chunksStorage = chunksStorageProvider(bodySize, chunkSize)
-    val iterator = IntRangeIterator(chunkSize, bodySize)
+    val iterator = LongRangeIterator(chunkSize, bodySize)
     val semaphore = Semaphore(numOfParallelRequests)
     coroutineScope {
-        for ((index, chunkRange) in iterator.withIndex()) {
+        for (chunkRange in iterator) {
             semaphore.acquire()
             launch {
                 val chunk = fileRequester.getChunk(chunkRange)
-                chunksStorage.saveChunk(index, chunk)
+                chunksStorage.saveChunk(chunkRange, chunk)
                 semaphore.release()
             }
         }
@@ -31,12 +31,12 @@ internal suspend fun <Result> loadFile(
     return chunksStorage.mergeChunks()
 }
 
-private class IntRangeIterator(
+class LongRangeIterator(
     val chunkSize: Int,
-    val bodySize: Int
-) : Iterator<IntRange> {
-    var chunkCounter: IntRange = -1 ..< 0
-    override fun next(): IntRange {
+    val bodySize: Long
+) : Iterator<LongRange> {
+    var chunkCounter: LongRange = -1L ..< 0L
+    override fun next(): LongRange {
         val first = chunkCounter.last + 1
         val lastExclusive = (first + chunkSize).coerceAtMost(bodySize)
         chunkCounter = first ..< lastExclusive

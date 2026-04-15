@@ -2,12 +2,12 @@ package org.example.requester
 
 internal class InMemFileRequester(
     private val testData: ByteArray
-) : FileRequester<IntRange> {
-    override suspend fun getBodySize(): Int {
-        return testData.size
+) : FileRequester<LongRange> {
+    override suspend fun getBodySize(): Long {
+        return testData.size.toLong()
     }
 
-    override suspend fun getChunk(id: IntRange): ByteArray {
-        return testData.slice(id).toByteArray()
+    override suspend fun getChunk(id: LongRange): ByteArray {
+        return testData.slice(id.first.toInt()..id.last.toInt()).toByteArray()
     }
 }

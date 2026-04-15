@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import org.example.requester.HttpFileRequester
 import org.example.storage.DiskChunksStorage
 import org.example.utils.ceilDiv
+import org.example.utils.toIntOrThrow
 import java.nio.file.Path
 
 
@@ -11,9 +12,7 @@ suspend fun HttpClient.loadFile(url: String, path: String, numOfParallelRequests
     return loadFile(
         fileRequester = HttpFileRequester(this, url),
         chunkSizeProvider = { bodySize -> bodySize ceilDiv numOfParallelRequests },
-        chunksStorageProvider = { _, chunkSize ->
-            DiskChunksStorage(path = Path.of(path), chunkSize = chunkSize)
-        },
+        chunksStorageProvider = { _, _ -> DiskChunksStorage(path = Path.of(path)) },
         numOfParallelRequests = numOfParallelRequests
     )
 }
@@ -23,13 +22,15 @@ suspend fun HttpClient.loadFile(url: String, path: String, chunkSize: Int, numOf
         fileRequester = HttpFileRequester(this, url),
         chunkSizeProvider = { bodySize ->
             when {
-                chunkSize * numOfParallelRequests > bodySize -> bodySize / numOfParallelRequests + 1
-                chunkSize * numOfParallelRequests == bodySize -> bodySize / numOfParallelRequests
+                chunkSize.toLong() * numOfParallelRequests > bodySize ->
+                    (bodySize / numOfParallelRequests + 1).toIntOrThrow()
+                chunkSize.toLong() * numOfParallelRequests == bodySize ->
+                    (bodySize / numOfParallelRequests).toIntOrThrow()
                 else -> chunkSize
             }
         },
-        chunksStorageProvider = { _, chunkSize ->
-            DiskChunksStorage(path = Path.of(path), chunkSize = chunkSize)
+        chunksStorageProvider = { _, _ ->
+            DiskChunksStorage(path = Path.of(path))
         },
         numOfParallelRequests = numOfParallelRequests
     )

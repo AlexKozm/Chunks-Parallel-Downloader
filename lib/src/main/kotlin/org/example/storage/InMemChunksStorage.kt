@@ -1,17 +1,24 @@
 package org.example.storage
 
-internal class InMemChunksStorage(
-    numOfChunks: Int
-) : ChunksStorage<MutableList<ByteArray>, Int> {
-    private val chunksStorage: MutableList<ByteArray?> = MutableList(numOfChunks) { null }
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-    override suspend fun saveChunk(id: Int, chunk: ByteArray) {
-        chunksStorage[id] = chunk
+internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
+    private val mutex = Mutex()
+    private val chunksStorage: MutableList<Pair<LongRange, ByteArray>> = mutableListOf()
+
+    override suspend fun saveChunk(id: LongRange, chunk: ByteArray) {
+        mutex.withLock {
+            chunksStorage.add(id to chunk)
+        }
     }
 
-    override suspend fun mergeChunks(): MutableList<ByteArray> {
-        if (chunksStorage.contains(null)) TODO("Throw something meaningful")
-        @Suppress("UNCHECKED_CAST")
-        return chunksStorage as MutableList<ByteArray>
+    override suspend fun mergeChunks(): List<ByteArray> {
+        val sortedChunks = chunksStorage.sortedBy { it.first.first }
+        sortedChunks.fold(-1L) { prevRangeLast, (curRange, _) ->
+            if (prevRangeLast + 1 != curRange.first) TODO("Throw something meaningful")
+            curRange.last
+        }
+        return sortedChunks.map { it.second }
     }
 }

@@ -3,7 +3,7 @@ package org.example.internal
 import kotlinx.coroutines.runBlocking
 import org.example.requester.InMemFileRequester
 import org.example.storage.InMemChunksStorage
-import org.example.utils.ceilDiv
+import org.example.utils.toIntOrThrow
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -11,19 +11,19 @@ class LoadWithChunkSizeAndNumOfParallelRequestsTest {
     private val testData = "test0test1test2test3test4"
     private val testDataByteArray = testData.toByteArray()
 
-    internal suspend fun loadFile(chunkSize: Int, numOfParallelRequests: Int): MutableList<ByteArray> {
+    internal suspend fun loadFile(chunkSize: Int, numOfParallelRequests: Int): List<ByteArray> {
         return org.example.loadFile(
             fileRequester = InMemFileRequester(testDataByteArray),
             chunkSizeProvider = { bodySize ->
                 when {
-                    chunkSize * numOfParallelRequests > bodySize -> bodySize / numOfParallelRequests + 1
-                    chunkSize * numOfParallelRequests == bodySize -> bodySize / numOfParallelRequests
+                    chunkSize.toLong() * numOfParallelRequests > bodySize ->
+                        (bodySize / numOfParallelRequests + 1).toIntOrThrow()
+                    chunkSize.toLong() * numOfParallelRequests == bodySize ->
+                        (bodySize / numOfParallelRequests).toIntOrThrow()
                     else -> chunkSize
                 }
             },
-            chunksStorageProvider = { bodySize, chunkSize ->
-                InMemChunksStorage(bodySize ceilDiv chunkSize)
-            },
+            chunksStorageProvider = { _, _ -> InMemChunksStorage() },
             numOfParallelRequests = numOfParallelRequests
         )
     }

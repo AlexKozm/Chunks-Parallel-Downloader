@@ -11,13 +11,11 @@ class FileChunkedByNumOfParallelRequestsTest {
     private val testData = "test0test1test2"
     private val testDataByteArray = testData.toByteArray()
 
-    private suspend fun loadFile(numOfParallelRequests: Int): MutableList<ByteArray> {
+    private suspend fun loadFile(numOfParallelRequests: Int): List<ByteArray> {
         return org.example.loadFile(
             fileRequester = InMemFileRequester(testDataByteArray),
             chunkSizeProvider = { bodySize -> bodySize ceilDiv numOfParallelRequests },
-            chunksStorageProvider = { bodySize, chunkSize ->
-                InMemChunksStorage(numOfChunks = bodySize ceilDiv chunkSize)
-            },
+            chunksStorageProvider = { _, _ -> InMemChunksStorage() },
             numOfParallelRequests = numOfParallelRequests
         )
     }

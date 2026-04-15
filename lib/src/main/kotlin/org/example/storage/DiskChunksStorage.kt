@@ -10,12 +10,11 @@ import java.nio.file.StandardOpenOption.*
 
 internal class DiskChunksStorage(
     val path: Path,
-    val chunkSize: Int
-) : ChunksStorage<Path, Int> {
-    override suspend fun saveChunk(id: Int, chunk: ByteArray) {
+) : ChunksStorage<Path, LongRange> {
+    override suspend fun saveChunk(id: LongRange, chunk: ByteArray) {
         withContext(Dispatchers.IO) {
             FileChannel.open(path, CREATE, WRITE).use { channel ->
-                channel.write(ByteBuffer.wrap(chunk), chunkSize * id.toLong())
+                channel.write(ByteBuffer.wrap(chunk), id.first)
             }
         }
     }

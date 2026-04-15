@@ -5,17 +5,15 @@ import io.ktor.client.request.get
 import io.ktor.client.request.head
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsBytes
-import kotlin.text.toInt
 
 internal class HttpFileRequester(
     private val client: HttpClient,
     private val url: String
-) : FileRequester<IntRange> {
+) : FileRequester<LongRange> {
     override suspend fun getBodySize() =
-        client.head(url).headers["Content-Length"]?.toInt() ?: TODO("Throw something meaningful")
+        client.head(url).headers["Content-Length"]?.toLong() ?: TODO("Throw something meaningful")
 
-    // TODO: consider using Long for range for big files
-    override suspend fun getChunk(id: IntRange): ByteArray {
+    override suspend fun getChunk(id: LongRange): ByteArray {
         val startOffset = id.first
         val endOffset = id.last
         val response = client.get(url) {

@@ -2,10 +2,15 @@ package org.example.requester
 
 
 internal interface FileRequester<ChunkId> {
-    // TODO: int could be not enough for big files. Consider using Long
-    suspend fun getBodySize(): Int
+    suspend fun getBodySize(): Long
 
-    // TODO: for big chunks Stream should probably be used.
-    //       Like in https://ktor.io/docs/client-responses.html#streaming
+    /**
+        Consider the chunk is a ByteArray, we can use only int for
+        addressing, so chunks should not be big.
+       TODO:
+        But if we are going to use some other structure than ByteArray, then
+        for big chunks Stream should probably be used.
+        Like in https://ktor.io/docs/client-responses.html#streaming.
+     */
     suspend fun getChunk(id: ChunkId): ByteArray
 }
