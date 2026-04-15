@@ -10,8 +10,8 @@ internal class HttpFileRequester(
     private val client: HttpClient,
     private val url: String
 ) : FileRequester<LongRange> {
-    override suspend fun getBodySize() =
-        client.head(url).headers["Content-Length"]?.toLong() ?: TODO("Throw something meaningful")
+    override suspend fun getBodySize() = client.head(url).headers["Content-Length"]?.toLong()
+        ?: throw LackOfRequiredHeaderException("Content-Length")
 
     override suspend fun getChunk(id: LongRange): ByteArray {
         val startOffset = id.first

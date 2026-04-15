@@ -10,12 +10,18 @@ TODO:
  numOfParallelRequests: Int and get ChunkSize: Int,
  probably better to use value classes for bodySize, numOfParallelRequests, ChunkSize
 */
-infix fun Long.ceilDiv(other: Int): Int {
+internal infix fun Long.ceilDiv(other: Int): Int {
     val longRes = floorDiv(other) + rem(other).sign.absoluteValue
     return longRes.toIntOrThrow()
 }
 
-fun Long.toIntOrThrow(): Int {
-    if (this !in Int.MIN_VALUE..Int.MAX_VALUE) TODO("throw: too big chunk")
+internal fun Long.toIntOrThrow(): Int {
+    if (this !in Int.MIN_VALUE..Int.MAX_VALUE) throw LongNotInIntRangeException(this)
     return toInt()
 }
+
+class LongNotInIntRangeException(
+    val long: Long
+) : IllegalArgumentException(
+    "$long cannot be converted to an Int as it is not in ${Int.MIN_VALUE}<=..<=${Int.MAX_VALUE} range"
+)

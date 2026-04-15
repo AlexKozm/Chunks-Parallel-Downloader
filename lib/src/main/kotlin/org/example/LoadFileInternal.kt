@@ -31,7 +31,7 @@ internal suspend fun <Result> loadFile(
     return chunksStorage.mergeChunks()
 }
 
-class LongRangeIterator(
+internal class LongRangeIterator(
     val chunkSize: Int,
     val bodySize: Long
 ) : Iterator<LongRange> {
