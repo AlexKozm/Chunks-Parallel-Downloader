@@ -1,15 +1,14 @@
-package org.example.internal
+package org.example.unit
 
 import kotlinx.coroutines.runBlocking
 import org.example.ChunkSizeDefiner
 import org.example.forLoadInOneIteration
 import org.example.requester.InMemFileRequester
 import org.example.storage.InMemChunksStorage
-import org.example.utils.ceilDiv
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
 
-class FileChunkedByNumOfParallelRequestsTest {
+class LoadInOneRequestTest {
     private val testData = "test0test1test2"
     private val testDataByteArray = testData.toByteArray()
 
