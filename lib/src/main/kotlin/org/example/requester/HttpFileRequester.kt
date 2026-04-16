@@ -1,23 +1,30 @@
 package org.example.requester
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.head
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsBytes
+import io.ktor.http.HttpHeaders
+import io.ktor.http.isSuccess
 
 internal class HttpFileRequester(
     private val client: HttpClient,
     private val url: String
 ) : FileRequester<LongRange> {
-    override suspend fun getBodySize() = client.head(url).headers["Content-Length"]?.toLong()
-        ?: throw LackOfRequiredHeaderException("Content-Length")
+    override suspend fun getBodySize(): Long {
+        val response = client.head(url)
+        if (!response.status.isSuccess()) throw ResponseException(response, "Response is not 2xx")
+        return response.headers[HttpHeaders.ContentLength]?.toLong() ?: 0
+    }
 
     override suspend fun getChunk(id: LongRange): ByteArray {
+        if (id.isEmpty()) return byteArrayOf()
         val startOffset = id.first
         val endOffset = id.last
         val response = client.get(url) {
-            header("Range", "bytes=$startOffset-$endOffset")
+            header(HttpHeaders.Range, "bytes=$startOffset-$endOffset")
         }
         return response.bodyAsBytes()
     }
