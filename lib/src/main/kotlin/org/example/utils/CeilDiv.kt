@@ -16,7 +16,7 @@ internal infix fun Long.ceilDiv(other: Int): Int {
 }
 
 internal fun Long.toIntOrThrow(): Int {
-    if (this !in Int.MIN_VALUE..Int.MAX_VALUE) throw LongNotInIntRangeException(this)
+    if (this !in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) throw LongNotInIntRangeException(this)
     return toInt()
 }
 

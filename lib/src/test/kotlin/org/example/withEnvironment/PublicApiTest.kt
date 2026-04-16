@@ -1,4 +1,4 @@
-package org.example.api
+package org.example.withEnvironment
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -46,6 +46,20 @@ class PublicApiTest(
         )
         val res = outputPath.readLines().joinToString("")
         val expected = "test0test1test2"
+        assertEquals(expected, res)
+    }
+
+    @Test
+    fun `load and save empty file`() = runBlocking {
+        outputPath.deleteIfExists()
+        client.loadFile(
+            url = "http://localhost:8080/input/test-file-empty.txt",
+            path = outputPath.pathString,
+            maxChunkSize = 2,
+            maxNumOfParallelRequests = 2
+        )
+        val res = outputPath.readLines().joinToString("")
+        val expected = ""
         assertEquals(expected, res)
     }
 }

@@ -13,6 +13,8 @@ internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
         }
     }
 
+    override suspend fun open() {}
+
     override suspend fun mergeChunks(): List<ByteArray> {
         val sortedChunks = chunksStorage.sortedBy { it.first.first }
         sortedChunks.fold(-1L) { prevRangeLast, (curRange, _) ->
@@ -22,4 +24,6 @@ internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
         }
         return sortedChunks.map { it.second }
     }
+
+    override suspend fun close() {}
 }
