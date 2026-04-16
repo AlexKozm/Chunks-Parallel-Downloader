@@ -1,7 +1,6 @@
 package org.example
 
 import org.example.utils.ceilDiv
-import org.example.utils.toIntOrThrow
 
 internal fun interface ChunkSizeDefiner {
     companion object
@@ -16,10 +15,8 @@ internal fun ChunkSizeDefiner.Companion.byMaxChunkSizeAndMaxParallel(
     numOfParallelRequests: Int
 ) = ChunkSizeDefiner { bodySize ->
     when {
-        chunkSize.toLong() * numOfParallelRequests > bodySize ->
-            (bodySize / numOfParallelRequests + 1).toIntOrThrow()
-        chunkSize.toLong() * numOfParallelRequests == bodySize ->
-            (bodySize / numOfParallelRequests).toIntOrThrow()
+        chunkSize.toLong() * numOfParallelRequests >= bodySize ->
+            ChunkSizeDefiner.forLoadInOneIteration(numOfParallelRequests).chunkSize(bodySize)
         else -> chunkSize
     }
 }
