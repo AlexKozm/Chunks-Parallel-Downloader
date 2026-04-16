@@ -1,7 +1,8 @@
-package org.example.storage
+package org.example.utils
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.example.storage.ChunksStorage
 
 internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
     private val mutex = Mutex()

@@ -3,8 +3,8 @@ package org.example.unit
 import kotlinx.coroutines.runBlocking
 import org.example.ChunkSizeDefiner
 import org.example.byMaxChunkSizeAndMaxParallel
-import org.example.requester.InMemFileRequester
-import org.example.storage.InMemChunksStorage
+import org.example.utils.InMemFileRequester
+import org.example.utils.InMemChunksStorage
 import org.junit.jupiter.api.Test
 import kotlin.collections.map
 import kotlin.test.assertEquals

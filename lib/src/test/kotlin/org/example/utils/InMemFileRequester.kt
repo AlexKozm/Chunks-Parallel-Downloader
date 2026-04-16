@@ -1,4 +1,6 @@
-package org.example.requester
+package org.example.utils
+
+import org.example.requester.FileRequester
 
 internal class InMemFileRequester(
     private val testData: ByteArray
