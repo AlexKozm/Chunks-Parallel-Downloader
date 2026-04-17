@@ -2,34 +2,37 @@
 
 ## What else could be improved
 
-### More complex chunk system
+### More Flexible Chunking Strategy
 
-Now all chunks are the same size and there is only one download order.
-This could be improved by custom chunks generator.
+Currently, all chunks are the same size and downloaded in a fixed sequential order.
+This could be improved by introducing a custom chunk generator.
 
 #### Custom chunks generator
 
-Function could accept custom chunks generator, which allow to change an order and chunks properties.
-In this case, for example, we would be able to load firstly some small chunk at the beginning of a file,
-then in the end, and then all others.
+The function could accept a custom chunk generator, which allows changing the order and properties of chunks.
+For example, this would enable downloading a small chunk from the beginning of a file first, 
+then one from the end, and finally the remaining chunks in between.
 
 ### Better exceptions handling
 
-Currently, if chunk load fails, then file load fails.
-This could be improved in a few ways.
+Currently, if a single chunk fails to load, the entire file download fails.
+This could be improved in several ways.
 
-#### Fails — try again
+#### Retry on Failure
 
-The easiest logic would be to repeat attempt to load a chunk right after load of the chunk fails.
-More complex strategies could also be created. For example, we could try to download failed
-chunks at the end of download, or at the moment when some amount of chunks failed.
-This could be implemented as a channel of failed chunks, and some logic that decides, 
-should it use an iterator, or the channel to get next chunk for processing.
+The simplest approach would be to retry loading a chunk immediately after it fails.
+More sophisticated strategies could also be implemented. 
+For example, failed chunks could be retried at the end of the download process, 
+or once a certain number of chunks have failed.
+This could be implemented using a channel for failed chunks, 
+combined with logic that decides whether to fetch the next chunk from the main iterator or from the retry channel.
 
-The general solution could look like an atomic queue with possibility to insert a failed chunk at any position.
+A more general solution could use an atomic queue 
+that allows inserting a failed chunk at any position for later reprocessing.
 
 #### Partial result
 
-The result of a load should not be a completed work. We could return a structure that describes what 
-chunks were downloaded and what were not. 
-Then there could be an oppotunity to save this structure and to continue a download.
+The result of a download should not be an all-or-nothing outcome. 
+Instead, we could return a structure that describes which chunks were successfully downloaded and which were not.
+This would provide an opportunity to save this state and resume the download later, 
+rather than starting over from the beginning.
