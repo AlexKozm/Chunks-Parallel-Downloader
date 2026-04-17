@@ -21,7 +21,7 @@ class TestEnvironmentTest {
         val client = HttpClient(CIO)
         val response = client.head("http://localhost:8080/input/test-file.txt")
         assert(response.headers.contains(HttpHeaders.ContentLength))
-        println(response.headers[HttpHeaders.ContentLength])
+        assert(response.headers[HttpHeaders.ContentLength]?.toLong() != 0L)
     }
 
     @Test
