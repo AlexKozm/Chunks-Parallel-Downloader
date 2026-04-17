@@ -8,7 +8,6 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 
 internal class HttpFileRequester(
@@ -18,7 +17,9 @@ internal class HttpFileRequester(
     override suspend fun getBodySize(): Long {
         val response = client.head(url)
         if (!response.status.isSuccess()) throw ResponseException(response, "Response is not 2xx")
-        return response.headers[HttpHeaders.ContentLength]?.toLong() ?: 0
+        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLong() ?: return 0
+        if (response.headers[HttpHeaders.AcceptRanges] != "bytes") throw NotAcceptByteRangesException(response)
+        return contentLength
     }
 
     override suspend fun getChunk(id: LongRange): ByteArray {
