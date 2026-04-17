@@ -5,12 +5,9 @@ internal interface FileRequester<ChunkId> {
     suspend fun getBodySize(): Long
 
     /**
-        Consider the chunk is a ByteArray, we can use only int for
-        addressing, so chunks should not be big.
-       TODO:
-        But if we are going to use some other structure than ByteArray, then
-        for big chunks Stream should probably be used.
-        Like in https://ktor.io/docs/client-responses.html#streaming.
+     * Is not suitable for chunks with length > [Int.MAX_VALUE].
+     * Could be improved by using streams [like here](https://ktor.io/docs/client-responses.html#streaming),
+     * but probably is not needed. Just use not very big chunks.
      */
     suspend fun getChunk(id: ChunkId): ByteArray
 }

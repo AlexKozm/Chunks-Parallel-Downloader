@@ -10,25 +10,25 @@ import kotlin.test.Test
 
 class TestEnvironmentTest {
     @Test
-    fun `server is available and has a test file`() = runBlocking {
+    fun `server is available and has an empty test file`() = runBlocking {
         val client = HttpClient(CIO)
-        val response = client.get("http://localhost:8080/input/test-file.txt")
+        val response = client.get("http://localhost:8080/input/test-file-empty.txt")
         assert(response.status == HttpStatusCode.OK)
     }
 
     @Test
-    fun `head returns Content-Length header`() = runBlocking {
+    fun `head returns Content-Length header for non-empty file`() = runBlocking {
         val client = HttpClient(CIO)
         val response = client.head("http://localhost:8080/input/test-file.txt")
-        assert(response.headers.contains("Content-Length"))
-        println(response.headers["Content-Length"])
+        assert(response.headers.contains(HttpHeaders.ContentLength))
+        println(response.headers[HttpHeaders.ContentLength])
     }
 
     @Test
     fun `range header in request works`() = runBlocking {
         val client = HttpClient(CIO)
         val response = client.get("http://localhost:8080/input/test-file.txt") {
-            header("Range", "bytes=1-2")
+            header(HttpHeaders.Range, "bytes=1-2")
         }
         assert(response.status == HttpStatusCode.PartialContent)
         assert(response.bodyAsText() == "es")

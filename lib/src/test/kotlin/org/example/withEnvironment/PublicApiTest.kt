@@ -5,6 +5,7 @@ import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.runBlocking
 import org.example.loadFile
 import org.junit.jupiter.api.AutoClose
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -22,14 +23,18 @@ class PublicApiTest(
     @AutoClose
     val client = HttpClient(CIO)
 
+    @BeforeEach
+    fun deleteFile() {
+        outputPath.deleteIfExists()
+    }
+
     @Test
     fun `load and save with specified chunk size`() = runBlocking {
-        outputPath.deleteIfExists()
         client.loadFile(
             url = "http://localhost:8080/input/test-file.txt",
             path = outputPath.pathString,
             maxChunkSize = 5,
-            maxNumOfParallelRequests = 2
+            numOfParallelRequests = 2
         )
         val res = outputPath.readLines().joinToString("")
         val expected = "test0test1test2"
@@ -38,7 +43,6 @@ class PublicApiTest(
 
     @Test
     fun `load and save without specified chunk size`() = runBlocking {
-        outputPath.deleteIfExists()
         client.loadFile(
             url = "http://localhost:8080/input/test-file.txt",
             path = outputPath.pathString,
@@ -51,12 +55,11 @@ class PublicApiTest(
 
     @Test
     fun `load and save empty file`() = runBlocking {
-        outputPath.deleteIfExists()
         client.loadFile(
             url = "http://localhost:8080/input/test-file-empty.txt",
             path = outputPath.pathString,
             maxChunkSize = 2,
-            maxNumOfParallelRequests = 2
+            numOfParallelRequests = 2
         )
         val res = outputPath.readLines().joinToString("")
         val expected = ""

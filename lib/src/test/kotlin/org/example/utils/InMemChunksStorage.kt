@@ -18,13 +18,18 @@ internal class InMemChunksStorage : UnsaveChunksStorage<List<ByteArray>, LongRan
 
     override suspend fun mergeChunks(): List<ByteArray> {
         val sortedChunks = chunksStorage.sortedBy { it.first.first }
-        sortedChunks.fold(-1L) { prevRangeLast, (curRange, _) ->
-            if (prevRangeLast + 1 != curRange.first)
-                throw UnionOfRangesIsNotContinuous(prevRangeLast + 1 ..< curRange.first)
-            curRange.last
-        }
+        sortedChunks.ranges().isContinuous()
         return sortedChunks.map { it.second }
     }
 
     override suspend fun close() {}
+
+    private fun List<Pair<LongRange, ByteArray>>.ranges(): List<LongRange> = map { it.first }
+
+    private fun List<LongRange>.isContinuous() = fold(-1L) { prevRangeLast, curRange ->
+        if (prevRangeLast + 1 != curRange.first)
+            throw UnionOfRangesIsNotContinuous(prevRangeLast + 1 ..< curRange.first)
+        curRange.last
+    }
+
 }

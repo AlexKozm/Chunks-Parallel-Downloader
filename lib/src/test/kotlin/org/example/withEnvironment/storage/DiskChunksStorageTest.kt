@@ -17,7 +17,7 @@ class DiskChunksStorageTest(
 
 
     @Test
-    fun `load and save with specified chunk size`() = runBlocking {
+    fun `load and save with specified chunks`() = runBlocking {
         UnsaveDiskChunksStorage(outputPath).toSaveStorage().use {
             saveChunk(5L..9, "test1".toByteArray())
             saveChunk(15L..19, "test3".toByteArray())

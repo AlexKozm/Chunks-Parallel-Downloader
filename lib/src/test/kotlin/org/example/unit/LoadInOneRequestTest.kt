@@ -16,7 +16,7 @@ class LoadInOneRequestTest {
         return org.example.loadFile(
             fileRequester = InMemFileRequester(testDataByteArray),
             chunkSizeProvider = ChunkSizeDefiner.forLoadInOneIteration(numOfParallelRequests),
-            chunksStorageProvider = { _, _ -> InMemChunksStorage() },
+            unsaveChunksStorageProvider = { _, _ -> InMemChunksStorage() },
             numOfParallelRequests = numOfParallelRequests
         )
     }

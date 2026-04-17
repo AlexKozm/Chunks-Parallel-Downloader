@@ -7,6 +7,8 @@ import io.ktor.client.request.head
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 
 internal class HttpFileRequester(
@@ -26,6 +28,11 @@ internal class HttpFileRequester(
         val response = client.get(url) {
             header(HttpHeaders.Range, "bytes=$startOffset-$endOffset")
         }
+        if (response.status != HttpStatusCode.PartialContent)
+            throw ResponseException(
+                response,
+                "Expected ${HttpStatusCode.PartialContent} but received ${response.status}"
+            )
         return response.bodyAsBytes()
     }
 }

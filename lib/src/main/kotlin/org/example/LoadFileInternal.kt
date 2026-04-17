@@ -11,12 +11,12 @@ import org.example.storage.toSaveStorage
 internal suspend fun <Result> loadFile(
     fileRequester: FileRequester<LongRange>,
     chunkSizeProvider: ChunkSizeDefiner,
-    chunksStorageProvider: (bodySize: Long, chunkSize: Int) -> UnsaveChunksStorage<Result, LongRange>,
+    unsaveChunksStorageProvider: (bodySize: Long, chunkSize: Int) -> UnsaveChunksStorage<Result, LongRange>,
     numOfParallelRequests: Int
 ): Result {
     val bodySize = fileRequester.getBodySize()
     val chunkSize = chunkSizeProvider.chunkSize(bodySize)
-    val chunksStorage = chunksStorageProvider(bodySize, chunkSize).toSaveStorage()
+    val chunksStorage = unsaveChunksStorageProvider(bodySize, chunkSize).toSaveStorage()
     val iterator = LongRangeIterator(chunkSize, bodySize)
     val semaphore = Semaphore(numOfParallelRequests)
     return chunksStorage.use {

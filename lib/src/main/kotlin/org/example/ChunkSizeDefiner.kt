@@ -10,7 +10,7 @@ internal fun interface ChunkSizeDefiner {
 internal fun ChunkSizeDefiner.Companion.forLoadInOneIteration(numOfParallelRequests: Int) =
     ChunkSizeDefiner { bodySize -> bodySize ceilDiv numOfParallelRequests }
 
-internal fun ChunkSizeDefiner.Companion.byMaxChunkSizeAndMaxParallel(
+internal fun ChunkSizeDefiner.Companion.byMaxChunkSizeAndNumOfParallel(
     chunkSize: Int,
     numOfParallelRequests: Int
 ) = ChunkSizeDefiner { bodySize ->
