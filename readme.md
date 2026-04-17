@@ -1,5 +1,14 @@
 # Chunks Parallel Downloader
 
+## Run tests
+
+To run tests on Linux use: 
+
+```shell
+docker-compose up -d
+./gradlew test
+```
+
 ## What else could be improved
 
 ### More Flexible Chunking Strategy
