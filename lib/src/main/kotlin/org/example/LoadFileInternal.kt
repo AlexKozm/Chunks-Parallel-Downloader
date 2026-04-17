@@ -4,19 +4,19 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import org.example.requester.FileRequester
-import org.example.storage.ChunksStorageScope
-import org.example.storage.ChunksStorage
+import org.example.storage.UnsaveChunksStorage
+import org.example.storage.toSaveStorage
 
 // TODO: think about using generic ChunkId
 internal suspend fun <Result> loadFile(
     fileRequester: FileRequester<LongRange>,
     chunkSizeProvider: ChunkSizeDefiner,
-    chunksStorageProvider: (bodySize: Long, chunkSize: Int) -> ChunksStorage<Result, LongRange>,
+    chunksStorageProvider: (bodySize: Long, chunkSize: Int) -> UnsaveChunksStorage<Result, LongRange>,
     numOfParallelRequests: Int
 ): Result {
     val bodySize = fileRequester.getBodySize()
     val chunkSize = chunkSizeProvider.chunkSize(bodySize)
-    val chunksStorage = ChunksStorageScope(chunksStorageProvider(bodySize, chunkSize))
+    val chunksStorage = chunksStorageProvider(bodySize, chunkSize).toSaveStorage()
     val iterator = LongRangeIterator(chunkSize, bodySize)
     val semaphore = Semaphore(numOfParallelRequests)
     return chunksStorage.use {
@@ -33,7 +33,7 @@ internal suspend fun <Result> loadFile(
     }
 }
 
-internal class LongRangeIterator(
+private class LongRangeIterator(
     val chunkSize: Int,
     val bodySize: Long
 ) : Iterator<LongRange> {

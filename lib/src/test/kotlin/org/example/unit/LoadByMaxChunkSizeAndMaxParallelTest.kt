@@ -32,8 +32,8 @@ class LoadByMaxChunkSizeAndMaxParallelTest {
     @Test
     fun `bodySize rem chunkSize != 0, chunkSize times numOfParallelRequests lt bodySize`() = runBlocking {
         val arr = loadFile(chunkSize = 4, numOfParallelRequests = 2)
-        val res = arr.joinToString("", transform = ByteArray::decodeToString)
-        assertEquals(testData, res)
+        val expected = testData.chunked(4)
+        assertEquals(expected, arr.map(ByteArray::decodeToString))
     }
 
     @Test

@@ -2,9 +2,9 @@ package org.example.utils
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.example.storage.ChunksStorage
+import org.example.storage.UnsaveChunksStorage
 
-internal class InMemChunksStorage : ChunksStorage<List<ByteArray>, LongRange> {
+internal class InMemChunksStorage : UnsaveChunksStorage<List<ByteArray>, LongRange> {
     private val mutex = Mutex()
     private val chunksStorage: MutableList<Pair<LongRange, ByteArray>> = mutableListOf()
 

@@ -8,9 +8,9 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption.*
 
 
-internal class DiskChunksStorage(
+internal class UnsaveDiskChunksStorage(
     val path: Path,
-) : ChunksStorage<Path, LongRange> {
+) : UnsaveChunksStorage<Path, LongRange> {
 
     lateinit var file: FileChannel
 
